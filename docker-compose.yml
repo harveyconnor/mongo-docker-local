@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  mongo:
+    container_name: mongo
+    image: mongo:4.2
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data/db
+      - mongoconfigdb:/data/configdb
+    networks:
+      default:
+  mongood:
+    container_name: mongood
+    image: renzholy/mongood
+    restart: always
+    ports:
+      - "3001:3000"
+    networks:
+      default:
+    environment:
+      MONGO_URIS: mongodb://mongo:27017
+volumes:
+  mongodb:
+  mongoconfigdb:
