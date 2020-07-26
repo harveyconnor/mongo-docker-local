@@ -6,7 +6,7 @@ services:
     image: mongo:4.2
     restart: always
     ports:
-      - "27017:27017"
+      - 27017:27017
     volumes:
       - mongodb:/data/db
       - mongoconfigdb:/data/configdb
@@ -17,11 +17,11 @@ services:
     image: renzholy/mongood
     restart: always
     ports:
-      - "3001:3000"
+      - 3001:3000
     networks:
       default:
     environment:
-      MONGO_URIS: mongodb://mongo:27017
+      MONGO_URIS: mongodb://localhost:27017
 volumes:
   mongodb:
   mongoconfigdb:
