@@ -1,17 +1,44 @@
 version: "3.8"
 
 services:
-  mongo:
-    container_name: mongo
-    image: mongo:4.2
+  mongo-setup:
+    container_name: mongo-setup
+    image: mongo:4.4
+    restart: on-failure
+    networks:
+      default:
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ["/scripts/setup.sh"]
+    depends_on:
+      - mongo1
+      - mongo2
+  mongo1:
+    hostname: mongo1
+    container_name: mongo1
+    image: mongo:4.4
     restart: always
     ports:
       - 27017:27017
     volumes:
-      - mongodb:/data/db
-      - mongoconfigdb:/data/configdb
+      - ./volumes/mongo1/data:/data/db
+      - ./volumes/mongo1/config:/data/configdb
     networks:
       default:
+    command: mongod --replSet rs0
+  mongo2:
+    hostname: mongo2
+    container_name: mongo2
+    image: mongo:4.4
+    restart: always
+    ports:
+      - 27018:27017
+    volumes:
+      - ./volumes/mongo2/data:/data/db
+      - ./volumes/mongo2/config:/data/configdb
+    networks:
+      default:
+    command: mongod --replSet rs0
   mongood:
     container_name: mongood
     image: renzholy/mongood
@@ -21,7 +48,10 @@ services:
     networks:
       default:
     environment:
-      MONGO_URIS: mongodb://localhost:27017
-volumes:
-  mongodb:
-  mongoconfigdb:
+      MONGO_URIS: mongodb://mongo1,mongo2/?replicaSet=rs0
+    depends_on:
+      - mongo1
+      - mongo2
+networks:
+  default:
+    external: false
